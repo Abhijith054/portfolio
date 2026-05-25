@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABHIJITH U | AI Engineer · Formula 1 Intelligence</title>
+  <meta name="description" content="Abhijith U — AI Engineer, ML Engineer, Full Stack Developer. Ultra futuristic cyberpunk F1 portfolio powered by intelligence, speed, and advanced technology." />
+  <meta name="keywords" content="AI Engineer, Machine Learning, Full Stack Developer, React, Python, Portfolio" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:ital,wght@0,100..900;1,100..900&family=Audiowide&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════ LOADING SCREEN ═══ -->
+  <div id="loader" class="loader">
+    <canvas id="loader-canvas"></canvas>
+    <div class="loader-content">
+      <div class="loader-hud" aria-hidden="true">
+        <div class="loader-rings">
+          <div class="loader-ring r1"></div>
+          <div class="loader-ring r2"></div>
+          <div class="loader-ring r3"></div>
+          <div class="loader-ring r4"></div>
+        </div>
+        <div class="loader-center">
+          <div class="loader-pulse"></div>
+          <div class="loader-core-glow"></div>
+          <div class="loader-logo">AU</div>
+        </div>
+        <div class="loader-scan"></div>
+      </div>
+      <div class="loader-text-block">
+        <div class="loader-title">INITIALIZING AI SYSTEMS</div>
+        <div class="loader-sequence" id="loader-sequence">NEURAL CORE BOOT SEQUENCE v4.2.1</div>
+        <div class="loader-bar-wrap"><div class="loader-bar" id="loader-bar"></div></div>
+        <div class="loader-percent" id="loader-percent">0%</div>
+      </div>
+      <div class="loader-stats">
+        <span class="ls">GPU: <em id="l-gpu">0%</em></span>
+        <span class="ls">NEURAL: <em id="l-neural">0%</em></span>
+        <span class="ls">AI CORE: <em id="l-ai">OFFLINE</em></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ CURSOR ═══ -->
+  <div id="cursor" class="cursor"></div>
+  <div id="cursor-trail" class="cursor-trail"></div>
+
+  <!-- ═══════════════════════════════════════════ NAV ═══ -->
+  <nav class="nav" id="nav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <span class="nl-box">AU</span>
+        <span class="nl-text">ABHIJITH<em>U</em></span>
+      </div>
+      <div class="nav-sector">SECTOR <span id="nav-sector-num">01</span></div>
+    </div>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#paddock"   data-num="01" data-section="paddock"  class="nav-link active">PADDOCK</a></li>
+      <li><a href="#telemetry" data-num="02" data-section="telemetry" class="nav-link">TELEMETRY</a></li>
+      <li><a href="#specs"     data-num="03" data-section="specs"    class="nav-link">SPECS</a></li>
+      <li><a href="#circuit"   data-num="04" data-section="circuit"  class="nav-link">CIRCUIT</a></li>
+      <li><a href="#trophies"  data-num="05" data-section="trophies" class="nav-link">TROPHIES</a></li>
+      <li><a href="#garage"    data-num="06" data-section="garage"   class="nav-link">GARAGE</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="nav-signal">
+        <span class="sig-dot"></span>
+        <span class="sig-dot"></span>
+        <span class="sig-dot"></span>
+      </div>
+      <a href="#pitstop" class="btn-pitstop" id="btn-pitstop">
+        <span class="btn-pip-inner">PIT STOP</span>
+        <div class="btn-pip-glow"></div>
+      </a>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════ LEFT HUD ═══ -->
+  <aside class="left-hud" id="left-hud">
+    <div class="lh-sector-track">
+      <div class="lh-line lh-line-top"></div>
+      <div class="lh-sectors">
+        <div class="lh-sector active" data-s="1">01</div>
+        <div class="lh-sector" data-s="2">02</div>
+        <div class="lh-sector" data-s="3">03</div>
+        <div class="lh-sector" data-s="4">04</div>
+        <div class="lh-sector" data-s="5">05</div>
+        <div class="lh-sector" data-s="6">06</div>
+      </div>
+      <div class="lh-progress-fill" id="lh-progress-fill"></div>
+    </div>
+    <div class="lh-stats">
+      <div class="lh-stat">
+        <div class="lh-stat-label">SPEED</div>
+        <div class="lh-stat-val" id="stat-speed">0</div>
+        <div class="lh-stat-unit">km/h</div>
+      </div>
+      <div class="lh-stat">
+        <div class="lh-stat-label">AI LOAD</div>
+        <div class="lh-stat-val" id="stat-ai">0</div>
+        <div class="lh-stat-unit">%</div>
+      </div>
+      <div class="lh-stat">
+        <div class="lh-stat-label">NEURAL</div>
+        <div class="lh-stat-val" id="stat-neural">0</div>
+        <div class="lh-stat-unit">MHz</div>
+      </div>
+      <div class="lh-stat">
+        <div class="lh-stat-label">GPU</div>
+        <div class="lh-stat-val" id="stat-gpu">0</div>
+        <div class="lh-stat-unit">%</div>
+      </div>
+      <div class="lh-stat">
+        <div class="lh-stat-label">LAP</div>
+        <div class="lh-stat-val" id="stat-lap">01</div>
+        <div class="lh-stat-unit">/ 06</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════ RIGHT HUD ═══ -->
+  <aside class="right-hud">
+    <div class="rh-time" id="rh-time">00:00:00</div>
+    <div class="rh-separator"></div>
+    <div class="rh-label">LAP TIME</div>
+    <div class="rh-separator"></div>
+    <div class="rh-gear-label">GEAR</div>
+    <div class="rh-gear" id="rh-gear">N</div>
+    <div class="rh-separator"></div>
+    <div class="rh-label">DRS</div>
+    <div class="rh-drs" id="rh-drs">OFF</div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════ MAIN ═══ -->
+  <main>
+
+    <!-- ══ SECTION 1: PADDOCK / HERO ══ -->
+    <section id="paddock" class="section hero-section">
+      <canvas id="hero-canvas" class="hero-canvas"></canvas>
+
+      <!-- Background image -->
+      <div class="hero-bg" style="background-image:url('cyberpunk_bg.png')"></div>
+      <div class="hero-bg-overlay"></div>
+
+      <!-- Fog / particles -->
+      <div class="hero-fog"></div>
+      <div class="particle-container" id="particle-container"></div>
+
+      <!-- Red scan lines -->
+      <div class="scan-line" id="scan-line-1"></div>
+      <div class="scan-line scan-line-2" id="scan-line-2"></div>
+
+      <!-- Light streaks -->
+      <div class="light-streaks" id="light-streaks"></div>
+
+      <!-- CAR -->
+      <div class="hero-car-wrap" id="hero-car-wrap">
+        <div class="car-glow-floor"></div>
+        <div class="car-hover-shadow"></div>
+          <div class="cer cer-1"></div>
+          <div class="cer cer-2"></div>
+          <div class="cer cer-3"></div>
+        </div>
+        <div class="car-particles" id="car-particles"></div>
+        <div class="car-telemetry-overlay">
+          <div class="cto-line cto-top"></div>
+          <div class="cto-line cto-bot"></div>
+          <div class="cto-dot cto-tl"></div>
+          <div class="cto-dot cto-tr"></div>
+          <div class="cto-dot cto-bl"></div>
+          <div class="cto-dot cto-br"></div>
+          <div class="cto-label cto-speed">v = 324 km/h</div>
+          <div class="cto-label cto-alt">ALT: 0.3m</div>
+        </div>
+      </div>
+
+      <!-- HERO TEXT — cinematic center focal -->
+      <div class="hero-content" id="hero-content">
+        <div class="hero-content-backdrop" aria-hidden="true"></div>
+        <div class="hero-content-inner">
+          <h1 class="hero-name">
+            <span class="hn-hi">HI, I'M</span>
+            <span class="hn-name">
+              <span class="hn-accent"></span>ABHIJITH U<span class="hn-accent"></span><span class="hn-accent"></span>
+            </span>
+          </h1>
+          <p class="hero-subtitle" id="hero-subtitle">
+            AI ENGINEER <span class="hs-sep">•</span> ML ENGINEER <span class="hs-sep">•</span> FULL STACK DEVELOPER
+          </p>
+          <p class="hero-desc">
+            Computer Science Engineering student passionate about AI, Machine Learning, Full Stack Development, and building intelligent systems that solve real-world problems.
+          </p>
+          <div class="hero-actions">
+            <a href="#circuit" class="btn-explore" id="btn-explore">
+              <span class="be-text">EXPLORE MY WORLD</span>
+              <span class="be-arrow">
+                <svg viewBox="0 0 40 16" fill="none"><path d="M0 8H36M30 2L38 8L30 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </span>
+              <div class="be-glow"></div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM HUD BAR -->
+      <div class="hero-bottom-hud">
+        <div class="hbh-left">
+          <div class="hbh-item">
+            <span class="hbh-label">STATUS</span>
+            <span class="hbh-val green">ONLINE</span>
+          </div>
+          <div class="hbh-item">
+            <span class="hbh-label">MODE</span>
+            <span class="hbh-val">RACE</span>
+          </div>
+          <div class="hbh-item">
+            <span class="hbh-label">TEAM</span>
+            <span class="hbh-val">TEAM AU</span>
+          </div>
+        </div>
+        <div class="hbh-center">
+          <div class="hbh-speed-graph" id="hbh-speed-graph">
+            <canvas id="speed-graph-canvas"></canvas>
+          </div>
+        </div>
+        <div class="hbh-right">
+          <div class="hbh-item">
+            <span class="hbh-label">AI VERSION</span>
+            <span class="hbh-val">4.2.1</span>
+          </div>
+          <div class="hbh-item">
+            <span class="hbh-label">BUILD</span>
+            <span class="hbh-val">STABLE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="scroll-indicator">
+        <div class="si-text">SCROLL TO ACCELERATE</div>
+        <div class="si-arrow"><div class="sia-inner"></div></div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 2: TELEMETRY / SKILLS ══ -->
+    <section id="telemetry" class="section telemetry-section reveal-section">
+      <div class="section-bg-lines"></div>
+      <div class="sec-header">
+        <div class="sh-num">02</div>
+        <div class="sh-content">
+          <div class="sh-tag">SYSTEM DIAGNOSTICS</div>
+          <h2 class="sh-title">TELEMETRY<span class="accent"> DATA</span></h2>
+          <div class="sh-sub">AI capabilities • Neural performance metrics</div>
+        </div>
+        <div class="sh-deco">
+          <div class="shd-ring"></div>
+          <div class="shd-ring shd-ring-2"></div>
+        </div>
+      </div>
+
+      <div class="skills-grid">
+
+        <div class="skill-card" data-skill="Python">
+          <div class="sc-glow"></div>
+          <div class="sc-header">
+            <div class="sc-icon">
+              <svg viewBox="0 0 40 40" fill="none">
+                <path d="M20 4C13 4 13 7 13 10v3h14v2H10C7 15 4 17 4 20s3 5 6 5h2v-3c0-3 2-5 8-5s8 2 8 5v8c0 3-3 6-8 6s-8-3-8-6h-4c0 5 5 9 12 9s12-4 12-9v-8c0-3-2-6-8-6v-3h6v-3c0-3 0-9-12-9z" fill="#ff1a1a"/>
+              </svg>
+            </div>
+            <div class="sc-info">
+              <div class="sc-name">PYTHON</div>
+              <div class="sc-level">EXPERT</div>
+            </div>
+            <div class="sc-percent" data-pct="70">70%</div>
+          </div>
+          <div class="sc-meter">
+            <div class="scm-track">
+              <div class="scm-fill" style="--pct:70%"></div>
+              <div class="scm-glow"></div>
+            </div>
+          </div>
+          <div class="sc-graph"><canvas class="skill-sparkline"></canvas></div>
+        </div>
+
+        <div class="skill-card" data-skill="Machine Learning">
+          <div class="sc-glow"></div>
+          <div class="sc-header">
+            <div class="sc-icon">
+              <svg viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="4" fill="#ff1a1a"/>
+                <circle cx="8"  cy="10" r="3" fill="#ff003c"/>
+                <circle cx="32" cy="10" r="3" fill="#ff003c"/>
+                <circle cx="8"  cy="30" r="3" fill="#ff003c"/>
+                <circle cx="32" cy="30" r="3" fill="#ff003c"/>
+                <line x1="20" y1="20" x2="8"  y2="10" stroke="#ff1a1a" stroke-width="1.5"/>
+                <line x1="20" y1="20" x2="32" y2="10" stroke="#ff1a1a" stroke-width="1.5"/>
+                <line x1="20" y1="20" x2="8"  y2="30" stroke="#ff1a1a" stroke-width="1.5"/>
+                <line x1="20" y1="20" x2="32" y2="30" stroke="#ff1a1a" stroke-width="1.5"/>
+                <line x1="8"  y1="10" x2="32" y2="10" stroke="#ff003c" stroke-width="1"/>
+                <line x1="8"  y1="30" x2="32" y2="30" stroke="#ff003c" stroke-width="1"/>
+              </svg>
+            </div>
+            <div class="sc-info">
+              <div class="sc-name">MACHINE LEARNING</div>
+              <div class="sc-level">ADVANCED</div>
+            </div>
+            <div class="sc-percent" data-pct="50">50%</div>
+          </div>
+          <div class="sc-meter"><div class="scm-track"><div class="scm-fill" style="--pct:50%"></div><div class="scm-glow"></div></div></div>
+          <div class="sc-graph"><canvas class="skill-sparkline"></canvas></div>
+        </div>
+
+        <div class="skill-card" data-skill="React.js">
+          <div class="sc-glow"></div>
+          <div class="sc-header">
+            <div class="sc-icon">
+              <svg viewBox="0 0 40 40" fill="none">
+                <ellipse cx="20" cy="20" rx="18" ry="7" stroke="#ff1a1a" stroke-width="2"/>
+                <ellipse cx="20" cy="20" rx="18" ry="7" stroke="#ff1a1a" stroke-width="2" transform="rotate(60 20 20)"/>
+                <ellipse cx="20" cy="20" rx="18" ry="7" stroke="#ff1a1a" stroke-width="2" transform="rotate(120 20 20)"/>
+                <circle cx="20" cy="20" r="3" fill="#ff1a1a"/>
+              </svg>
+            </div>
+            <div class="sc-info">
+              <div class="sc-name">REACT.JS</div>
+              <div class="sc-level">ADVANCED</div>
+            </div>
+            <div class="sc-percent" data-pct="65">65%</div>
+          </div>
+          <div class="sc-meter"><div class="scm-track"><div class="scm-fill" style="--pct:65%"></div><div class="scm-glow"></div></div></div>
+          <div class="sc-graph"><canvas class="skill-sparkline"></canvas></div>
+        </div>
+
+        <div class="skill-card" data-skill="AI/LLM Integration">
+          <div class="sc-glow"></div>
+          <div class="sc-header">
+            <div class="sc-icon">
+              <svg viewBox="0 0 40 40" fill="none">
+                <rect x="6" y="14" width="28" height="18" rx="3" stroke="#ff1a1a" stroke-width="2"/>
+                <path d="M12 8h16M14 8v6M26 8v6" stroke="#ff1a1a" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 22h6M22 22h6M12 27h16" stroke="#ff003c" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="sc-info">
+              <div class="sc-name">AI/LLM INTEGRATION</div>
+              <div class="sc-level">EXPERT</div>
+            </div>
+            <div class="sc-percent" data-pct="55">55%</div>
+          </div>
+          <div class="sc-meter"><div class="scm-track"><div class="scm-fill" style="--pct:55%"></div><div class="scm-glow"></div></div></div>
+          <div class="sc-graph"><canvas class="skill-sparkline"></canvas></div>
+        </div>
+
+        <div class="skill-card" data-skill="SQL">
+          <div class="sc-glow"></div>
+          <div class="sc-header">
+            <div class="sc-icon">
+              <svg viewBox="0 0 40 40" fill="none">
+                <ellipse cx="20" cy="12" rx="12" ry="5" stroke="#ff1a1a" stroke-width="2"/>
+                <path d="M8 12v16c0 2.8 5.4 5 12 5s12-2.2 12-5V12" stroke="#ff1a1a" stroke-width="2"/>
+                <path d="M8 20c0 2.8 5.4 5 12 5s12-2.2 12-5" stroke="#ff003c" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div class="sc-info">
+              <div class="sc-name">SQL / POSTGRESQL</div>
+              <div class="sc-level">PROFICIENT</div>
+            </div>
+            <div class="sc-percent" data-pct="50">50%</div>
+          </div>
+          <div class="sc-meter"><div class="scm-track"><div class="scm-fill" style="--pct:50%"></div><div class="scm-glow"></div></div></div>
+          <div class="sc-graph"><canvas class="skill-sparkline"></canvas></div>
+        </div>
+
+        <div class="skill-card" data-skill="Embedded Systems">
+          <div class="sc-glow"></div>
+          <div class="sc-header">
+            <div class="sc-icon">
+              <svg viewBox="0 0 40 40" fill="none">
+                <rect x="10" y="10" width="20" height="20" rx="2" stroke="#ff1a1a" stroke-width="2"/>
+                <rect x="14" y="14" width="12" height="12" rx="1" fill="#ff003c" opacity=".4"/>
+                <line x1="6"  y1="15" x2="10" y2="15" stroke="#ff1a1a" stroke-width="2"/>
+                <line x1="6"  y1="20" x2="10" y2="20" stroke="#ff1a1a" stroke-width="2"/>
+                <line x1="6"  y1="25" x2="10" y2="25" stroke="#ff1a1a" stroke-width="2"/>
+                <line x1="30" y1="15" x2="34" y2="15" stroke="#ff1a1a" stroke-width="2"/>
+                <line x1="30" y1="20" x2="34" y2="20" stroke="#ff1a1a" stroke-width="2"/>
+                <line x1="30" y1="25" x2="34" y2="25" stroke="#ff1a1a" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="sc-info">
+              <div class="sc-name">DATA ANALYSIS</div>
+              <div class="sc-level">ADVANCED</div>
+            </div>
+            <div class="sc-percent" data-pct="45">45%</div>
+          </div>
+          <div class="sc-meter"><div class="scm-track"><div class="scm-fill" style="--pct:45%"></div><div class="scm-glow"></div></div></div>
+          <div class="sc-graph"><canvas class="skill-sparkline"></canvas></div>
+        </div>
+
+        <div class="skill-card" data-skill="UI/UX Design">
+          <div class="sc-glow"></div>
+          <div class="sc-header">
+            <div class="sc-icon">
+              <svg viewBox="0 0 40 40" fill="none">
+                <rect x="4" y="4" width="14" height="14" rx="2" stroke="#ff1a1a" stroke-width="2"/>
+                <rect x="22" y="4" width="14" height="14" rx="2" stroke="#ff003c" stroke-width="2"/>
+                <rect x="4" y="22" width="14" height="14" rx="2" stroke="#ff003c" stroke-width="2"/>
+                <rect x="22" y="22" width="14" height="14" rx="2" stroke="#ff1a1a" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="sc-info">
+              <div class="sc-name">UI/UX DESIGN</div>
+              <div class="sc-level">PROFICIENT</div>
+            </div>
+            <div class="sc-percent" data-pct="50">50%</div>
+          </div>
+          <div class="sc-meter"><div class="scm-track"><div class="scm-fill" style="--pct:50%"></div><div class="scm-glow"></div></div></div>
+          <div class="sc-graph"><canvas class="skill-sparkline"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 3: SPECS / TECHNOLOGIES ══ -->
+    <section id="specs" class="section specs-section reveal-section">
+      <div class="section-bg-lines"></div>
+      <div class="sec-header">
+        <div class="sh-num">03</div>
+        <div class="sh-content">
+          <div class="sh-tag">TECHNICAL SPECIFICATIONS</div>
+          <h2 class="sh-title">TECH<span class="accent"> SPECS</span></h2>
+          <div class="sh-sub">Technology stack · Engineering systems</div>
+        </div>
+      </div>
+
+      <div class="specs-grid">
+        <div class="spec-category">
+          <div class="specc-header">
+            <div class="specc-icon"></div>
+            <div class="specc-title">AI / ML CORE</div>
+          </div>
+          <div class="specc-items">
+            <div class="specc-item"><span class="si-dot"></span>TensorFlow</div>
+            <div class="specc-item"><span class="si-dot"></span>PyTorch</div>
+            <div class="specc-item"><span class="si-dot"></span>OpenAI API</div>
+            <div class="specc-item"><span class="si-dot"></span>LangChain</div>
+            <div class="specc-item"><span class="si-dot"></span>Hugging Face</div>
+          </div>
+        </div>
+
+        <div class="spec-category">
+          <div class="specc-header">
+            <div class="specc-icon"></div>
+            <div class="specc-title">FRONTEND</div>
+          </div>
+          <div class="specc-items">
+            <div class="specc-item"><span class="si-dot"></span>React.js</div>
+            <div class="specc-item"><span class="si-dot"></span>Next.js</div>
+            <div class="specc-item"><span class="si-dot"></span>TypeScript</div>
+            <div class="specc-item"><span class="si-dot"></span>Tailwind CSS</div>
+            <div class="specc-item"><span class="si-dot"></span>Framer Motion</div>
+          </div>
+        </div>
+
+        <div class="spec-category">
+          <div class="specc-header">
+            <div class="specc-icon"></div>
+            <div class="specc-title">BACKEND</div>
+          </div>
+          <div class="specc-items">
+            <div class="specc-item"><span class="si-dot"></span>Python / FastAPI</div>
+            <div class="specc-item"><span class="si-dot"></span>Node.js</div>
+            <div class="specc-item"><span class="si-dot"></span>Flask</div>
+            <div class="specc-item"><span class="si-dot"></span>PostgreSQL</div>
+            <div class="specc-item"><span class="si-dot"></span>MongoDB</div>
+            <div class="specc-item"><span class="si-dot"></span>REST APIs</div>
+          </div>
+        </div>
+
+        <div class="spec-category">
+          <div class="specc-header">
+            <div class="specc-icon"></div>
+            <div class="specc-title">CLOUD / DEVOPS</div>
+          </div>
+          <div class="specc-items">
+            <div class="specc-item"><span class="si-dot"></span>AWS</div>
+            <div class="specc-item"><span class="si-dot"></span>Docker</div>
+            <div class="specc-item"><span class="si-dot"></span>Git/GitHub</div>
+            <div class="specc-item"><span class="si-dot"></span>Render</div>
+            <div class="specc-item"><span class="si-dot"></span>Vercel</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Rotating tech ring -->
+      <div class="tech-ring-wrap">
+        <div class="tech-ring tr-outer"></div>
+        <div class="tech-ring tr-mid"></div>
+        <div class="tech-ring tr-inner"></div>
+        <div class="tech-ring-label">FULL STACK AI</div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 4: CIRCUIT / PROJECTS ══ -->
+    <section id="circuit" class="section circuit-section reveal-section">
+      <div class="section-bg-lines"></div>
+      <div class="sec-header">
+        <div class="sh-num">04</div>
+        <div class="sh-content">
+          <div class="sh-tag">RACE MODULES</div>
+          <h2 class="sh-title">CIRCUIT<span class="accent"> MAP</span></h2>
+          <div class="sh-sub">Project telemetry · System deployments</div>
+        </div>
+      </div>
+
+      <div class="projects-grid">
+
+        <div class="project-card featured" id="proj-0">
+          <div class="pc-scan"></div>
+          <div class="pc-top-bar">
+            <span class="pc-num">MODULE 01</span>
+            <span class="pc-status">Completed</span>
+          </div>
+          <div class="pc-category">AI College Enquiry Assistant</div>
+          <h3 class="pc-title">LLM Integrated AI Assistant for College Enquiries</h3>
+          <p class="pc-desc">AI-powered assistant for handling college-related queries efficiently.
+            Developed a full-stack AI-powered college enquiry assistant using React.js, Groq (Llama
+            3.1) and PostgreSQL with intent-based routing.
+            Achieved multilingual and voice-enabled interaction improving accessibility and real-time response efficiency.
+            Implemented context-aware conversation memory, structured data retrieval, and optimized LLM prompt engineering for accurate and reliable responses.
+            </p>
+          <div class="pc-tech-stack">
+            <span class="pcts">Python</span><span class="pcts">RAG</span><span class="pcts">Groq</span><span class="pcts">PostgreSQL</span>
+          </div>
+          <div class="pc-footer">
+          </div>
+          <div class="pc-corner pc-tl"></div>
+          <div class="pc-corner pc-tr"></div>
+          <div class="pc-corner pc-bl"></div>
+          <div class="pc-corner pc-br"></div>
+        </div>
+
+        <div class="project-card" id="proj-1">
+          <div class="pc-scan"></div>
+          <div class="pc-top-bar">
+            <span class="pc-num">MODULE 02</span>
+            <span class="pc-status">Completed</span>
+          </div>
+          <div class="pc-category">CHATBOT</div>
+          <h3 class="pc-title">Travel Assistance Chatbot</h3>
+          <p class="pc-desc">Developed an interactive Travel Assistance Chatbot using Python and Gradio.
+            Suggested destinations, travel dates, and tips based on user input.
+            Designed a simple, user-friendly interface for smooth interaction.
+            Applied Python logic, chatbot development, and UI design skills.
+            Built with scalability in mind, allowing future integration with external APIs</p>
+          <div class="pc-tech-stack">
+            <span class="pcts">Python</span><span class="pcts">Gradio</span>
+          </div>
+          <div class="pc-metrics">
+          </div>
+          <div class="pc-corner pc-tl"></div><div class="pc-corner pc-tr"></div>
+          <div class="pc-corner pc-bl"></div><div class="pc-corner pc-br"></div>
+        </div>
+
+        <div class="project-card" id="proj-2">
+          <div class="pc-scan"></div>
+          <div class="pc-top-bar">
+            <span class="pc-num">MODULE 03</span>
+            <span class="pc-status">COMPLETE</span>
+          </div>
+          <div class="pc-category">IOT</div>
+          <h3 class="pc-title">Automated Pen Plotter Using Arduino</h3>
+          <p class="pc-desc">Experience with pen plotters for precision drawing and automated sketching.
+            Skilled in converting digital designs into plotted outputs using vector graphics and G-code.
+            Familiar with software tools like Inkscape, CNC controllers, and custom scripts for optimizing plotting efficiency.
+            Ability to calibrate and troubleshoot pen plotters for consistent output quality.</p>
+          <div class="pc-tech-stack">
+          </div>
+          <div class="pc-metrics">
+          </div> 
+          <div class="pc-corner pc-tl"></div><div class="pc-corner pc-tr"></div>
+          <div class="pc-corner pc-bl"></div><div class="pc-corner pc-br"></div>
+        </div>
+
+        <div class="project-card" id="proj-3">
+          <div class="pc-scan"></div>
+          <div class="pc-top-bar">
+            <span class="pc-num">MODULE 04</span>
+            <span class="pc-status">Completed</span>
+          </div>
+          <div class="pc-category">Machine Learning</div>
+          <h3 class="pc-title">ReceiptAI – Secure Receipt Intelligence Access</h3>
+          <p class="pc-desc">ReceiptAI is a highly optimized, AI-driven extraction and conversing engine for digitizing unstructured receipts and documents. Designed with a modular architecture, it extracts structured key fields (Vendor, Date, Total) using OCR and Large Language Models, and allows users to query their document contents via a conversational chat interface..</p>
+          <div class="pc-tech-stack">
+            <span class="pcts">PyTorch</span><span class="pcts">Python</span><span class="pcts">React</span>
+          </div>
+          <div class="pc-metrics">
+           
+          </div>
+          <div class="pc-footer"><a href="#" class="pc-btn"></a></div>
+          <div class="pc-corner pc-tl"></div><div class="pc-corner pc-tr"></div>
+          <div class="pc-corner pc-bl"></div><div class="pc-corner pc-br"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ SECTION 5: TROPHIES ══ -->
+    <section id="trophies" class="section trophies-section reveal-section">
+      <div class="section-bg-lines"></div>
+      <div class="sec-header">
+        <div class="sh-num">05</div>
+        <div class="sh-content">
+          <div class="sh-tag">CHAMPIONSHIP RECORD</div>
+          <h2 class="sh-title">TROPHY<span class="accent"> CABINET</span></h2>
+          <div class="sh-sub">Achievements · Certifications · Memberships</div>
+        </div>
+      </div>
+
+      <div class="trophies-grid">
+        <div class="trophy-card" data-delay="0">
+          <div class="tc-glow"></div>
+          <div class="tc-icon-wrap">
+          </div>
+          <div class="tc-badge">Certification</div>
+          <h3 class="tc-title">Python Django Workshop</h3>
+          <p class="tc-desc">Course by Luminar Technolab.</p>
+          <p class="tc-desc">Date: June 23-27,2025.</p>
+          <div class="tc-year">2025</div>
+        </div>
+
+        <div class="trophy-card" data-delay="100">
+          <div class="tc-glow"></div>
+          <div class="tc-icon-wrap">
+          </div>
+          <div class="tc-badge">Certification</div>
+          <h3 class="tc-title">Introduction to Cloud Computing</h3>
+          <p class="tc-desc">Course by Infosys Springboard.</p>
+          <p class="tc-desc">Date: June 4, 2025.</p>
+          <div class="tc-year">2025</div>
+        </div>
+
+        <div class="trophy-card" data-delay="200">
+          <div class="tc-glow"></div>
+          <div class="tc-icon-wrap">
+          </div>
+          <div class="tc-badge">Certification</div>
+          <h3 class="tc-title">2D Game Development Bootcamp using Unity.</h3>
+          <p class="tc-desc">Organized by TITLED.</p>
+          <p class="tc-desc">Date: February 19–23, 2024.</p>
+          <div class="tc-year">2024</div>
+        </div>
+
+        <div class="trophy-card" data-delay="300">
+          <div class="tc-glow"></div>
+          <div class="tc-icon-wrap">
+          </div>
+          <div class="tc-badge">Certification</div>
+          <h3 class="tc-title">Ethical Hacking On IOT Devices</h3>
+          <p class="tc-desc">Organized by BINARO LEARNING HUB.</p>
+          <p class="tc-desc">Date:January 13-17,25.</p>
+          <div class="tc-year">2025</div>
+        </div>
+
+        <div class="trophy-card" data-delay="400">
+          <div class="tc-glow"></div>
+          <div class="tc-icon-wrap">
+          </div>
+          <div class="tc-badge">Certification</div>
+          <h3 class="tc-title">Data Analytics Job Simulation</h3>
+          <p class="tc-desc">Course by Forage.</p>
+          <p class="tc-desc">Date: July 22, 2025.</p>
+          <div class="tc-year">2025</div>
+        </div>
+
+        <div class="trophy-card" data-delay="500">
+          <div class="tc-glow"></div>
+          <div class="tc-icon-wrap">
+
+          </div>
+          <div class="tc-badge">PUBLICATIONS</div>
+          <h3 class="tc-title">LLM Integrated AI Assistant for Educational Institutions</h3>
+          <p class="tc-desc">“LLM Integrated AI Assistant for Educational Institutions,” accepted for presentation at IEEE-sponsored International Conference(ADSSSC 2026), April 2026.</p>
+          <div class="tc-year">2026</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 6: GARAGE / EXPERIENCE ══ -->
+    <section id="garage" class="section garage-section reveal-section">
+      <div class="section-bg-lines"></div>
+      <div class="sec-header">
+        <div class="sh-num">06</div>
+        <div class="sh-content">
+          <div class="sh-tag">RACE HISTORY</div>
+          <h2 class="sh-title">GARAGE<span class="accent"> LOG</span></h2>
+          <div class="sh-sub">Experience timeline · Engineering journey</div>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-line"></div>
+
+        <div class="timeline-item ti-left reveal-item">
+          <div class="ti-dot"><div class="ti-dot-inner"></div></div>
+          <div class="ti-card">
+            <div class="tic-scan"></div>
+            <div class="tic-year">2026 – Present</div>
+            <div class="tic-role">PROJECT INTERN</div>
+            <div class="tic-org">TRIZLABS · Kerala</div>
+            <p class="tic-desc">Create and implement technical products and systems.</p>
+            <div class="tic-tags">
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item ti-right reveal-item">
+          <div class="ti-dot"><div class="ti-dot-inner"></div></div>
+          <div class="ti-card">
+            <div class="tic-scan"></div>
+            <div class="tic-year">2024</div>
+            <div class="tic-role">GDG Media Facilitator</div>
+            <div class="tic-org">Google Developer Groups</div>
+            <p class="tic-desc">Official media team member for GDG, responsible for event documentation, visual content creation, social media, and technical writing for developer community.</p>
+            <div class="tic-tags">
+              <span>Content</span><span>Media</span><span>Community</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item ti-left reveal-item">
+          <div class="ti-dot"><div class="ti-dot-inner"></div></div>
+          <div class="ti-card">
+            <div class="tic-scan"></div>
+            <div class="tic-year">2024</div>
+            <div class="tic-role">IEEE Student Member</div>
+            <div class="tic-org">Institute of Electrical &amp; Electronics Engineers</div>
+            <p class="tic-desc">Engaging in community-driven tech initiatives and event organization.</p>
+            <div class="tic-tags">
+              <span>Research</span><span>IEEE</span><span>Embedded</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item ti-right reveal-item">
+          <div class="ti-dot"><div class="ti-dot-inner"></div></div>
+          <div class="ti-card">
+            <div class="tic-scan"></div>
+            <div class="tic-year">2022 – 2026</div>
+            <div class="tic-role">B.Tech – Computer Science Engineering</div>
+            <div class="tic-org">PROVIDENCE ENGINEERING COLLEGE,Chennganur· Kerala, India</div>
+            <p class="tic-desc">Completed my B.Tech in Computer Science and Engineering. Active participant in IEDC, college tech fests, workshops, hackathons.</p>
+            <div class="tic-tags">
+              <span>CSE</span><span>AI/ML</span><span>IEDC</span><span>Academic</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ SECTION 7: PIT STOP / CONTACT ══ -->
+    <section id="pitstop" class="section pitstop-section reveal-section">
+      <div class="section-bg-lines"></div>
+      <div class="pitstop-bg-grid"></div>
+      <div class="sec-header">
+        <div class="sh-num">07</div>
+        <div class="sh-content">
+          <div class="sh-tag">RACE CONTROL</div>
+          <h2 class="sh-title">PIT<span class="accent"> STOP</span></h2>
+          <div class="sh-sub">Initiate contact · Deploy collaboration</div>
+        </div>
+      </div>
+
+      <div class="pitstop-grid">
+        <div class="pitstop-info">
+          <div class="pi-title">LET'S BUILD <br/><span class="accent">INTELLIGENCE</span></div>
+          <p class="pi-desc">Ready to accelerate your next AI project? Whether it's an LLM integration, computer vision system, or a full-stack intelligent application — let's deploy something extraordinary.</p>
+          <div class="pi-links">
+            <a href="mailto:abhijithu@example.com" class="pi-link">
+              <span class="pil-icon">✉</span>
+              <span>abhijithunni3234@gmail.com</span>
+              <span class="pil-arrow">→</span>
+            </a>
+            <a href="https://linkedin.com/in/abhijith-u-673133257" target="_blank" class="pi-link">
+              <span class="pil-icon">in</span>
+              <span>LinkedIn Profile</span>
+              <span class="pil-arrow">→</span>
+            </a>
+            <a href="https://github.com/Abhijith054" target="_blank" class="pi-link">
+              <span class="pil-icon">⌥</span>
+              <span>GitHub Portfolio</span>
+              <span class="pil-arrow">→</span>
+            </a>
+          </div>
+          <div class="pi-status">
+            <span class="pis-dot"></span>
+            <span>Available for opportunities · Remote / Hybrid / On-Site</span>
+          </div>
+        </div>
+
+        <div class="pitstop-form-wrap">
+          <div class="pf-corner pf-tl"></div>
+          <div class="pf-corner pf-tr"></div>
+          <div class="pf-corner pf-bl"></div>
+          <div class="pf-corner pf-br"></div>
+          <div class="pf-header">
+            <span class="pfh-icon"></span>
+            INITIATE CONTACT SEQUENCE
+          </div>
+          <form class="pitstop-form" id="contact-form" novalidate>
+            <div class="pf-row">
+              <div class="pf-field">
+                <label for="cf-name">OPERATOR NAME</label>
+                <input type="text" id="cf-name" name="name" placeholder="Your full name" required autocomplete="name" />
+                <div class="pf-line"></div>
+              </div>
+              <div class="pf-field">
+                <label for="cf-email">COMM CHANNEL</label>
+                <input type="email" id="cf-email" name="email" placeholder="your@email.com" required autocomplete="email" />
+                <div class="pf-line"></div>
+              </div>
+            </div>
+            <div class="pf-field">
+              <label for="cf-subject">MISSION BRIEF</label>
+              <input type="text" id="cf-subject" name="subject" placeholder="Project type / collaboration idea" />
+              <div class="pf-line"></div>
+            </div>
+            <div class="pf-field">
+              <label for="cf-msg">MESSAGE PAYLOAD</label>
+              <textarea id="cf-msg" name="message" rows="4" placeholder="Describe your project or opportunity..." required></textarea>
+              <div class="pf-line"></div>
+            </div>
+            <button type="submit" class="pf-submit" id="pf-submit">
+              <span class="pfs-text">TRANSMIT MESSAGE</span>
+              <span class="pfs-icon"></span>
+              <div class="pfs-glow"></div>
+            </button>
+            <div class="pf-success" id="pf-success">
+              <span class="pfs-check">✓</span> MESSAGE TRANSMITTED SUCCESSFULLY
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="footer-top-line"></div>
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span class="fl-box">AU</span>
+        <span class="fl-text">ABHIJITH U · AI ENGINEER</span>
+      </div>
+      <div class="footer-links">
+        <a href="#paddock">PADDOCK</a>
+        <a href="#telemetry">TELEMETRY</a>
+        <a href="#circuit">CIRCUIT</a>
+        <a href="#trophies">TROPHIES</a>
+        <a href="#pitstop">PIT STOP</a>
+      </div>
+      <div class="footer-copy">© 2025 ABHIJITH U · ALL SYSTEMS OPERATIONAL ·</div>
+    </div>
+  </footer>
+
+  <!-- Mobile nav overlay -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+
+  <script src="main.js"></script>
+</body>
+</html>
