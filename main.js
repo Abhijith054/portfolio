@@ -108,6 +108,7 @@ function initAll() {
   initSparklines();
   initSpeedGraph();
   initContactForm();
+  initTimelineAnimation();
   initCarParticles();
   initScrollAcceleration();
 }
@@ -554,15 +555,55 @@ function initReveal() {
     });
   }, { threshold: 0.1 });
 
-  $$('.skills-grid, .specs-grid, .projects-grid, .trophies-grid, .timeline').forEach(el => {
+  $$('.skills-grid, .specs-grid, .projects-grid, .trophies-grid').forEach(el => {
     // Set initial hidden state for children
-    el.querySelectorAll('.skill-card, .spec-category, .project-card, .trophy-card, .timeline-item').forEach(c => {
+    el.querySelectorAll('.skill-card, .spec-category, .project-card, .trophy-card').forEach(c => {
       c.style.opacity = '0';
       c.style.transform = 'translateY(30px)';
       c.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     });
     gridObs.observe(el);
   });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   12b. GARAGE TIMELINE — scroll line + slide-in cards
+═══════════════════════════════════════════════════════════════════ */
+function initTimelineAnimation() {
+  const timeline = $('#experience-timeline');
+  const lineProgress = $('#timeline-line-progress');
+  if (!timeline) return;
+
+  const items = $$('.timeline-item', timeline);
+
+  const revealObs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const visibleItems = $$('.timeline-item', entry.target);
+      visibleItems.forEach((item, i) => {
+        setTimeout(() => item.classList.add('ti-visible'), i * 140);
+      });
+      revealObs.unobserve(entry.target);
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+
+  revealObs.observe(timeline);
+
+  function updateLineProgress() {
+    if (!lineProgress) return;
+    const rect = timeline.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const start = vh * 0.75;
+    const end = -rect.height * 0.15;
+    const range = start - end;
+    const progress = (start - rect.top) / range;
+    const pct = Math.min(100, Math.max(0, progress * 100));
+    lineProgress.style.height = `${pct}%`;
+  }
+
+  window.addEventListener('scroll', updateLineProgress, { passive: true });
+  window.addEventListener('resize', updateLineProgress, { passive: true });
+  updateLineProgress();
 }
 
 /* ═══════════════════════════════════════════════════════════════════

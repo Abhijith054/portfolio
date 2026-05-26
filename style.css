@@ -439,13 +439,18 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
 .sec-header {
   display: flex; align-items: flex-start; gap: 24px; margin-bottom: 60px;
   position: relative; z-index: 2;
+  max-width: 100%;
 }
 .sh-num {
   font-family: var(--font-hud); font-size: 80px; font-weight: 900;
   color: rgba(255,26,26,.08); line-height: 1; flex-shrink: 0;
   margin-top: -10px;
 }
-.sh-content { flex: 1; }
+.sh-content {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+}
 .sh-tag {
   font-family: var(--font-hud); font-size: 11px; color: var(--red);
   letter-spacing: 4px; margin-bottom: 8px;
@@ -454,6 +459,8 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
   font-family: var(--font-hud); font-size: clamp(36px, 5vw, 56px);
   font-weight: 900; letter-spacing: 4px; line-height: 1.1;
   color: var(--white); text-transform: uppercase;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .sh-sub {
   font-family: var(--font-tech); font-size: 14px; color: var(--gray); margin-top: 8px;
@@ -1148,15 +1155,77 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
   position: relative; z-index: 2; max-width: 900px; margin: 0 auto;
   display: flex; flex-direction: column; gap: 0;
 }
-.timeline-line {
-  position: absolute; left: 50%; top: 0; bottom: 0; width: 1px;
-  background: linear-gradient(180deg, transparent, rgba(255,26,26,.4) 10%, rgba(255,26,26,.4) 90%, transparent);
+
+.timeline-track {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 3px;
   transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.timeline-line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 26, 26, 0.15) 8%,
+    rgba(255, 26, 26, 0.35) 50%,
+    rgba(255, 26, 26, 0.15) 92%,
+    transparent 100%
+  );
+}
+
+.timeline-line-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(180deg, var(--red-deep), var(--red), #ff5555);
+  box-shadow: 0 0 14px rgba(255, 26, 26, 0.65);
+  border-radius: 2px;
+  transition: height 0.12s ease-out;
+}
+
+.timeline-pulse {
+  position: absolute;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 12px var(--red), 0 0 24px rgba(255, 26, 26, 0.5);
+  animation: timeline-pulse-travel 3.5s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes timeline-pulse-travel {
+  0% { top: 0%; opacity: 0; transform: scale(0.6); }
+  8% { opacity: 1; transform: scale(1); }
+  92% { opacity: 1; transform: scale(1); }
+  100% { top: calc(100% - 10px); opacity: 0; transform: scale(0.6); }
 }
 
 .timeline-item {
   display: flex; align-items: flex-start; gap: 40px;
   padding: 24px 0; position: relative;
+  opacity: 0;
+  transition:
+    opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.timeline-item.ti-left:not(.ti-visible) { transform: translateX(-56px); }
+.timeline-item.ti-right:not(.ti-visible) { transform: translateX(56px); }
+.timeline-item.ti-visible {
+  opacity: 1;
+  transform: translateX(0);
 }
 .ti-left { flex-direction: row-reverse; }
 .ti-left .ti-card { text-align: right; }
@@ -1172,7 +1241,14 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
   width: 6px; height: 6px; border-radius: 50%; background: var(--red);
   animation: ti-pulse 2s ease-in-out infinite;
 }
+.timeline-item.ti-visible .ti-dot-inner {
+  animation: ti-pulse-active 1.5s ease-in-out infinite;
+}
 @keyframes ti-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,26,26,.5)} 50%{box-shadow:0 0 0 6px rgba(255,26,26,0)} }
+@keyframes ti-pulse-active {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 26, 26, 0.8); transform: scale(1); }
+  50% { box-shadow: 0 0 0 10px rgba(255, 26, 26, 0); transform: scale(1.15); }
+}
 
 .ti-card {
   flex: 1; background: linear-gradient(135deg, rgba(20,0,0,.5), rgba(10,10,10,.8));
@@ -1181,11 +1257,25 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
 }
 .ti-card:hover { border-color: rgba(255,26,26,.4); transform: scale(1.02); }
 .tic-scan {
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
   background: linear-gradient(90deg, transparent, var(--red), transparent);
-  opacity: 0; transition: opacity .3s;
+  box-shadow: 0 0 10px var(--red);
+  opacity: 0.25;
+  animation: tic-scan-move 2.8s linear infinite;
+  pointer-events: none;
 }
-.ti-card:hover .tic-scan { opacity: 1; }
+.timeline-item.ti-visible .tic-scan { opacity: 0.45; }
+.ti-card:hover .tic-scan {
+  opacity: 1;
+  animation-duration: 1.6s;
+}
+@keyframes tic-scan-move {
+  0% { top: 0; }
+  100% { top: calc(100% - 2px); }
+}
 
 .tic-year { font-family: var(--font-hud); font-size: 11px; color: var(--red); letter-spacing: 2px; margin-bottom: 6px; }
 .tic-role { font-family: var(--font-hud); font-size: 16px; font-weight: 700; color: var(--white); letter-spacing: 1px; margin-bottom: 4px; }
@@ -1216,7 +1306,6 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
   justify-content: center;
   text-align: center;
 }
-.pitstop-section .sh-num { margin-right: 0; }
 
 .pitstop-grid {
   display: flex;
@@ -1651,6 +1740,89 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
   .mobile-nav-overlay.open { display: block; }
 
   .left-hud, .right-hud { display: none; }
+
+  /* Section headers — prevent overlap / horizontal overflow on mobile */
+  .sec-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 40px;
+    padding-top: 4px;
+  }
+  .sh-num {
+    position: absolute;
+    top: -4px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    font-size: clamp(72px, 22vw, 120px);
+    margin: 0;
+    text-align: left;
+    line-height: 0.9;
+    z-index: 0;
+    pointer-events: none;
+    color: rgba(255, 26, 26, 0.07);
+  }
+  .sh-content {
+    position: relative;
+    z-index: 1;
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+    padding-top: clamp(48px, 14vw, 72px);
+  }
+  .sh-deco { display: none; }
+  .sh-tag {
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .sh-title {
+    font-size: clamp(26px, 7.5vw, 42px);
+    letter-spacing: 0.1em;
+    line-height: 1.15;
+  }
+  .sh-sub {
+    font-size: 13px;
+    line-height: 1.55;
+    margin-top: 10px;
+  }
+
+  .pitstop-section .sh-num { text-align: center; }
+  .pitstop-section .sh-content {
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .hero-section {
+    height: 100svh;
+    min-height: 100svh;
+  }
+  .hero-bg {
+    background-size: cover;
+    background-position: center top;
+  }
+  .hero-content {
+    padding: var(--nav-h) 20px 100px;
+    align-items: center;
+  }
+  .hero-content-backdrop {
+    width: 100%;
+    height: 55vh;
+    max-height: 420px;
+  }
+  .hero-content-inner {
+    max-width: 100%;
+    padding: 0 4px;
+  }
+  .hero-car-wrap {
+    width: min(280px, 75vw);
+    bottom: 5%;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .car-telemetry-overlay { display: none; }
+
   .skills-grid { grid-template-columns: 1fr; }
   .projects-grid { grid-template-columns: 1fr; }
   .project-card.featured { grid-column: span 1; }
@@ -1667,13 +1839,6 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
   }
 
   .pitstop-section { padding-left: 20px; padding-right: 20px; }
-  .pitstop-section .sec-header {
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 40px;
-  }
-  .pitstop-section .sh-num { font-size: 56px; margin-top: 0; }
   .pitstop-grid { min-height: auto; padding: 0 4px; }
   .pitstop-info { max-width: 100%; padding: 0 4px; }
   .pi-title { letter-spacing: 2px; font-size: clamp(24px, 7vw, 40px); }
@@ -1700,15 +1865,28 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
   }
 
   .footer-inner { flex-direction: column; padding: 24px; }
-  .sh-num { font-size: 48px; }
   .spec-category { clip-path: none; }
   .skill-card { clip-path: none; }
 
-  .timeline-line { display: none; }
+  .timeline { padding-left: 28px; }
+  .timeline-track {
+    left: 8px;
+    transform: none;
+  }
   .timeline-item, .ti-left { flex-direction: column; }
-  .ti-dot { position: static; transform: none; }
-  .ti-card { max-width: 100%; }
-  .ti-left .ti-card { text-align: left; }
+  .timeline-item.ti-left:not(.ti-visible),
+  .timeline-item.ti-right:not(.ti-visible) {
+    transform: translateX(32px);
+  }
+  .timeline-item.ti-visible { transform: translateX(0); }
+  .ti-dot {
+    position: absolute;
+    left: 8px;
+    top: 36px;
+    transform: translateX(-50%);
+  }
+  .ti-card { max-width: 100%; margin-left: 20px; }
+  .ti-left .ti-card { text-align: left; margin-left: 20px; }
   .ti-left .tic-tags { justify-content: flex-start; }
 
   .pf-row { grid-template-columns: 1fr; }
@@ -1717,14 +1895,28 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
 }
 
 @media (max-width: 600px) {
+  .section { padding-left: 16px; padding-right: 16px; }
+
   .trophies-grid { grid-template-columns: 1fr; }
   .specs-grid { grid-template-columns: 1fr; }
-  .hero-car-wrap { width: 95vw; bottom: 6%; }
-  .hn-name { font-size: 36px; letter-spacing: 0.08em; }
-  .hero-subtitle { letter-spacing: 0.12em; font-size: 8px; }
+  .hero-car-wrap { width: min(240px, 70vw); bottom: 4%; }
+  .hn-name { font-size: clamp(32px, 10vw, 40px); letter-spacing: 0.06em; }
+  .hero-subtitle {
+    letter-spacing: 0.1em;
+    font-size: clamp(8px, 2.5vw, 10px);
+    line-height: 1.7;
+  }
+  .hero-desc { font-size: 14px; }
+  .hero-actions { flex-direction: column; width: 100%; }
+  .hero-actions .btn-explore,
+  .hero-actions .btn-pitstop { width: 100%; justify-content: center; }
+
+  .sh-title { font-size: clamp(22px, 6.5vw, 34px); letter-spacing: 0.06em; }
+  .sh-title .accent { display: block; margin-top: 2px; }
+  .sh-num { font-size: clamp(56px, 20vw, 88px); }
 
   .pitstop-section { padding-left: 16px; padding-right: 16px; }
-  .pitstop-section .sh-title { font-size: clamp(28px, 9vw, 40px); }
+  .pitstop-section .sh-title { font-size: clamp(26px, 8vw, 36px); }
   .pitstop-section .sh-sub { font-size: 10px; letter-spacing: 2px; }
   .pi-title br { display: none; }
   .pi-title .accent { display: block; margin-top: 4px; }
