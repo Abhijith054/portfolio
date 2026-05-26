@@ -1212,9 +1212,41 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
   perspective: 500px;
 }
 
+.pitstop-section .sec-header {
+  justify-content: center;
+  text-align: center;
+}
+.pitstop-section .sh-num { margin-right: 0; }
+
 .pitstop-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
-  position: relative; z-index: 2; align-items: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  min-height: min(50vh, 520px);
+}
+
+.pitstop-info {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.pitstop-grid:has(.pitstop-form-wrap) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+  min-height: 0;
+}
+.pitstop-grid:has(.pitstop-form-wrap) .pitstop-info {
+  text-align: left;
+  max-width: none;
+  margin: 0;
 }
 
 .pi-title {
@@ -1224,20 +1256,33 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
 }
 .pi-desc { font-family: var(--font-tech); font-size: 15px; color: var(--gray); line-height: 1.8; margin-bottom: 32px; }
 
-.pi-links { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+.pi-links { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; width: 100%; }
 .pi-link {
   display: flex; align-items: center; gap: 16px;
   font-family: var(--font-tech); font-size: 15px; color: var(--gray);
   border: 1px solid rgba(255,26,26,.15); padding: 14px 20px;
   transition: var(--tr);
 }
-.pi-link:hover { color: var(--white); border-color: var(--red); transform: translateX(6px); box-shadow: -4px 0 0 var(--red); }
+.pi-link:hover {
+  color: var(--white);
+  border-color: var(--red);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 24px rgba(255, 26, 26, 0.15);
+}
+.pitstop-grid:has(.pitstop-form-wrap) .pi-link:hover {
+  transform: translateX(6px);
+  box-shadow: -4px 0 0 var(--red);
+}
 .pil-icon { font-size: 18px; color: var(--red); width: 24px; text-align: center; font-style: normal; }
 .pil-arrow { margin-left: auto; color: var(--red); }
 
 .pi-status {
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px;
   font-family: var(--font-hud); font-size: 11px; color: var(--gray); letter-spacing: 2px;
+}
+.pitstop-grid:has(.pitstop-form-wrap) .pi-status {
+  justify-content: flex-start;
 }
 .pis-dot {
   width: 8px; height: 8px; border-radius: 50%; background: #00ff88;
@@ -1610,7 +1655,50 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
   .projects-grid { grid-template-columns: 1fr; }
   .project-card.featured { grid-column: span 1; }
   .trophies-grid { grid-template-columns: 1fr 1fr; }
-  .pitstop-grid { grid-template-columns: 1fr; gap: 40px; }
+  .pitstop-grid:has(.pitstop-form-wrap) {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .pitstop-grid:has(.pitstop-form-wrap) .pitstop-info {
+    text-align: center;
+  }
+  .pitstop-grid:has(.pitstop-form-wrap) .pi-status {
+    justify-content: center;
+  }
+
+  .pitstop-section { padding-left: 20px; padding-right: 20px; }
+  .pitstop-section .sec-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .pitstop-section .sh-num { font-size: 56px; margin-top: 0; }
+  .pitstop-grid { min-height: auto; padding: 0 4px; }
+  .pitstop-info { max-width: 100%; padding: 0 4px; }
+  .pi-title { letter-spacing: 2px; font-size: clamp(24px, 7vw, 40px); }
+  .pi-desc { font-size: 14px; line-height: 1.7; margin-bottom: 24px; }
+  .pi-link {
+    padding: 14px 16px;
+    font-size: 14px;
+    gap: 12px;
+    min-height: 48px;
+  }
+  .pi-link span:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+    text-align: left;
+  }
+  .pi-status {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-align: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    line-height: 1.5;
+  }
+
   .footer-inner { flex-direction: column; padding: 24px; }
   .sh-num { font-size: 48px; }
   .spec-category { clip-path: none; }
@@ -1634,4 +1722,12 @@ body:has(a:hover) .cursor-trail { width: 48px; height: 48px; border-color: var(-
   .hero-car-wrap { width: 95vw; bottom: 6%; }
   .hn-name { font-size: 36px; letter-spacing: 0.08em; }
   .hero-subtitle { letter-spacing: 0.12em; font-size: 8px; }
+
+  .pitstop-section { padding-left: 16px; padding-right: 16px; }
+  .pitstop-section .sh-title { font-size: clamp(28px, 9vw, 40px); }
+  .pitstop-section .sh-sub { font-size: 10px; letter-spacing: 2px; }
+  .pi-title br { display: none; }
+  .pi-title .accent { display: block; margin-top: 4px; }
+  .pi-link { flex-wrap: wrap; }
+  .pil-arrow { margin-left: 0; width: 100%; text-align: right; padding-top: 4px; }
 }
