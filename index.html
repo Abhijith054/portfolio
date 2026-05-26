@@ -787,7 +787,7 @@
           <div class="pi-title">LET'S BUILD <br/><span class="accent">INTELLIGENCE</span></div>
           <p class="pi-desc">Ready to accelerate your next AI project? Whether it's an LLM integration, computer vision system, or a full-stack intelligent application — let's deploy something extraordinary.</p>
           <div class="pi-links">
-            <a href="mailto:abhijithu@example.com" class="pi-link">
+            <a href="mailto:abhijithunni3234@gmail.com" class="pi-link">
               <span class="pil-icon">✉</span>
               <span>abhijithunni3234@gmail.com</span>
               <span class="pil-arrow">→</span>
@@ -807,6 +807,84 @@
             <span class="pis-dot"></span>
             <span>Available for opportunities · Remote / Hybrid / On-Site</span>
           </div>
+        </div>
+
+        <div class="pitstop-form-wrap">
+          <div class="pf-corner pf-tl"></div>
+          <div class="pf-corner pf-tr"></div>
+          <div class="pf-corner pf-bl"></div>
+          <div class="pf-corner pf-br"></div>
+          <div class="pf-header">
+            <span class="pfh-icon"></span>
+            INITIATE CONTACT SEQUENCE
+          </div>
+          <form class="pitstop-form" id="contact-form" novalidate>
+            <input type="text" name="_honey" id="cf-honey" class="cf-honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <div class="cf-transmission-panel" id="cf-transmission-panel" hidden aria-hidden="true">
+              <div class="cf-scan-sweep"></div>
+              <div class="cf-tx-header">
+                <span class="cf-tx-dot"></span>
+                SECURE UPLINK ACTIVE
+              </div>
+              <div class="cf-tx-progress-wrap">
+                <div class="cf-tx-meta">
+                  <span id="cf-tx-seq">INITIALIZING NEURAL RELAY...</span>
+                  <span id="cf-tx-pct">0%</span>
+                </div>
+                <div class="cf-tx-bar">
+                  <div class="cf-tx-fill" id="cf-tx-fill"></div>
+                </div>
+              </div>
+              <div class="cf-tx-grid"></div>
+            </div>
+
+            <div class="pf-row">
+              <div class="pf-field" data-field="name">
+                <label for="cf-name">OPERATOR NAME</label>
+                <input type="text" id="cf-name" name="name" placeholder="Your full name" required autocomplete="name" />
+                <div class="pf-line"></div>
+                <span class="pf-field-error" id="cf-err-name" role="alert"></span>
+              </div>
+              <div class="pf-field" data-field="email">
+                <label for="cf-email">COMM CHANNEL</label>
+                <input type="email" id="cf-email" name="email" placeholder="your@email.com" required autocomplete="email" />
+                <div class="pf-line"></div>
+                <span class="pf-field-error" id="cf-err-email" role="alert"></span>
+              </div>
+            </div>
+            <div class="pf-field" data-field="subject">
+              <label for="cf-subject">MISSION BRIEF</label>
+              <input type="text" id="cf-subject" name="subject" placeholder="Project type / collaboration idea" required />
+              <div class="pf-line"></div>
+              <span class="pf-field-error" id="cf-err-subject" role="alert"></span>
+            </div>
+            <div class="pf-field" data-field="message">
+              <label for="cf-msg">MESSAGE PAYLOAD</label>
+              <textarea id="cf-msg" name="message" rows="4" placeholder="Describe your project or opportunity..." required minlength="10"></textarea>
+              <div class="pf-line"></div>
+              <span class="pf-field-error" id="cf-err-message" role="alert"></span>
+            </div>
+
+            <button type="submit" class="pf-submit" id="pf-submit">
+              <span class="pfs-scan"></span>
+              <span class="pfs-text">TRANSMIT MESSAGE</span>
+              <span class="pfs-icon">▶</span>
+              <div class="pfs-glow"></div>
+            </button>
+
+            <div class="pf-feedback" id="pf-feedback" aria-live="polite">
+              <div class="pf-success" id="pf-success" hidden>
+                <div class="pf-success-pulse"></div>
+                <span class="pfs-check">✓</span>
+                <span class="pf-success-text">MESSAGE TRANSMITTED SUCCESSFULLY</span>
+              </div>
+              <div class="pf-error" id="pf-error" hidden>
+                <span class="pfe-icon">⚠</span>
+                <span class="pf-error-text">TRANSMISSION FAILED — RETRY REQUIRED</span>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -834,6 +912,8 @@
   <!-- Mobile nav overlay -->
   <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
 
+  <script src="contact.config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

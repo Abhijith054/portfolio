@@ -801,33 +801,312 @@ function initScrollAcceleration() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   18. CONTACT FORM
+   18. CONTACT FORM — real-time email transmission
 ═══════════════════════════════════════════════════════════════════ */
 function initContactForm() {
-  const form    = $('#contact-form');
-  const btn     = $('#pf-submit');
-  const success = $('#pf-success');
+  const form       = $('#contact-form');
+  const btn        = $('#pf-submit');
+  const txPanel    = $('#cf-transmission-panel');
+  const txFill     = $('#cf-tx-fill');
+  const txSeq      = $('#cf-tx-seq');
+  const txPct      = $('#cf-tx-pct');
+  const successEl  = $('#pf-success');
+  const errorEl    = $('#pf-error');
+  const wrap       = form ? form.closest('.pitstop-form-wrap') : null;
+
   if (!form) return;
 
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    if (btn) btn.disabled = true;
-    const txt = btn ? btn.querySelector('.pfs-text') : null;
-    if (txt) txt.textContent = 'TRANSMITTING...';
+  const cfg = window.CONTACT_CONFIG || { recipientEmail: 'abhijithunni3234@gmail.com', provider: 'formsubmit', emailjs: {} };
+  const RECIPIENT = cfg.recipientEmail || 'abhijithunni3234@gmail.com';
 
+  const TX_STEPS = [
+    'INITIALIZING NEURAL RELAY...',
+    'ENCRYPTING MESSAGE PAYLOAD...',
+    'ESTABLISHING SECURE UPLINK...',
+    'ROUTING TO COMMAND INBOX...',
+    'VERIFYING TRANSMISSION CHECKSUM...'
+  ];
+
+  const fields = {
+    name:    { el: $('#cf-name'),    err: $('#cf-err-name') },
+    email:   { el: $('#cf-email'),   err: $('#cf-err-email') },
+    subject: { el: $('#cf-subject'), err: $('#cf-err-subject') },
+    message: { el: $('#cf-msg'),     err: $('#cf-err-message') }
+  };
+
+  function clearFeedback() {
+    if (successEl) { successEl.hidden = true; successEl.classList.remove('is-visible'); }
+    if (errorEl)   { errorEl.hidden = true;   errorEl.classList.remove('is-visible'); }
+    if (wrap) wrap.classList.remove('cf-success', 'cf-error', 'cf-sending');
+  }
+
+  function setFieldError(key, msg) {
+    const f = fields[key];
+    if (!f.el || !f.err) return;
+    f.el.classList.toggle('pf-invalid', !!msg);
+    f.el.closest('.pf-field')?.classList.toggle('has-error', !!msg);
+    f.err.textContent = msg || '';
+  }
+
+  function clearFieldErrors() {
+    Object.keys(fields).forEach(k => setFieldError(k, ''));
+  }
+
+  function validatePayload() {
+    clearFieldErrors();
+    let valid = true;
+    const name    = fields.name.el?.value.trim() || '';
+    const email   = fields.email.el?.value.trim() || '';
+    const subject = fields.subject.el?.value.trim() || '';
+    const message = fields.message.el?.value.trim() || '';
+    const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+
+    if (name.length < 2) {
+      setFieldError('name', 'OPERATOR ID REQUIRED (MIN 2 CHARS)');
+      valid = false;
+    }
+    if (!emailRx.test(email)) {
+      setFieldError('email', 'INVALID COMM CHANNEL — ENTER VALID EMAIL');
+      valid = false;
+    }
+    if (subject.length < 3) {
+      setFieldError('subject', 'MISSION BRIEF REQUIRED');
+      valid = false;
+    }
+    if (message.length < 10) {
+      setFieldError('message', 'PAYLOAD TOO SHORT (MIN 10 CHARS)');
+      valid = false;
+    }
+
+    return valid ? { name, email, subject, message } : null;
+  }
+
+  function useEmailJS() {
+    const ej = cfg.emailjs || {};
+    return cfg.provider === 'emailjs' &&
+      ej.serviceId && ej.templateId && ej.publicKey &&
+      typeof emailjs !== 'undefined';
+  }
+
+  function buildEmailBody(data, timestamp) {
+    return [
+      `Operator Name: ${data.name}`,
+      `Email Channel: ${data.email}`,
+      `Mission Brief: ${data.subject}`,
+      `Message Payload: ${data.message}`,
+      '',
+      `Timestamp: ${timestamp}`,
+      'System Status: MESSAGE TRANSMITTED'
+    ].join('\n');
+  }
+
+  async function sendViaFormSubmit(data, timestamp) {
+    const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(RECIPIENT)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        _subject: '🚀 New AI Portfolio Contact Request',
+        _captcha: 'false',
+        _template: 'table',
+        _replyto: data.email,
+        name: data.name,
+        email: data.email,
+        operator_name: data.name,
+        email_channel: data.email,
+        mission_brief: data.subject,
+        message_payload: data.message,
+        timestamp,
+        system_status: 'MESSAGE TRANSMITTED',
+        message: buildEmailBody(data, timestamp)
+      })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json().catch(() => ({}));
+    if (json.success === 'false' || json.success === false) {
+      throw new Error(json.message || 'Transmission rejected');
+    }
+    return json;
+  }
+
+  async function sendViaEmailJS(data, timestamp) {
+    const ej = cfg.emailjs;
+    emailjs.init(ej.publicKey);
+    const result = await emailjs.send(ej.serviceId, ej.templateId, {
+      operator_name: data.name,
+      email_channel: data.email,
+      mission_brief: data.subject,
+      message_payload: data.message,
+      timestamp,
+      system_status: 'MESSAGE TRANSMITTED',
+      reply_to: data.email,
+      to_email: RECIPIENT
+    });
+    if (result.status && result.status >= 400) throw new Error('EmailJS transmission failed');
+    return result;
+  }
+
+  async function transmitMessage(data) {
+    const timestamp = new Date().toLocaleString('en-IN', {
+      dateStyle: 'medium',
+      timeStyle: 'medium',
+      timeZone: 'Asia/Kolkata'
+    });
+    if (useEmailJS()) {
+      try {
+        return await sendViaEmailJS(data, timestamp);
+      } catch (err) {
+        console.warn('[Contact] EmailJS failed, using FormSubmit fallback:', err);
+      }
+    }
+    return sendViaFormSubmit(data, timestamp);
+  }
+
+  let progressTimer = null;
+  let progressValue = 0;
+
+  function setProgress(pct, stepIndex) {
+    progressValue = pct;
+    if (txFill) txFill.style.width = `${pct}%`;
+    if (txPct) txPct.textContent = `${Math.round(pct)}%`;
+    if (txSeq && TX_STEPS[stepIndex]) txSeq.textContent = TX_STEPS[stepIndex];
+  }
+
+  function startTransmissionHUD() {
+    if (wrap) wrap.classList.add('cf-sending');
+    form.classList.add('is-transmitting');
+    if (txPanel) {
+      txPanel.hidden = false;
+      txPanel.setAttribute('aria-hidden', 'false');
+    }
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('is-scanning');
+      const txt = btn.querySelector('.pfs-text');
+      if (txt) txt.textContent = 'SCANNING UPLINK...';
+    }
+    setProgress(0, 0);
+
+    let step = 0;
+    clearInterval(progressTimer);
+    progressTimer = setInterval(() => {
+      if (progressValue >= 88) return;
+      const next = Math.min(progressValue + 4 + Math.random() * 6, 88);
+      if (next > step * 18 && step < TX_STEPS.length - 1) step++;
+      setProgress(next, Math.min(step, TX_STEPS.length - 1));
+    }, 120);
+  }
+
+  function stopTransmissionHUD(success) {
+    clearInterval(progressTimer);
+    if (success) {
+      setProgress(100, TX_STEPS.length - 1);
+      if (txSeq) txSeq.textContent = 'TRANSMISSION COMPLETE — INBOX CONFIRMED';
+    }
     setTimeout(() => {
-      form.querySelectorAll('input, textarea').forEach(el => { el.value = ''; });
-      if (btn)  { btn.style.display = 'none'; }
-      if (success) { success.style.display = 'block'; }
-    }, 1400);
+      if (txPanel) {
+        txPanel.hidden = true;
+        txPanel.setAttribute('aria-hidden', 'true');
+      }
+      form.classList.remove('is-transmitting');
+      if (wrap) wrap.classList.remove('cf-sending');
+      setProgress(0, 0);
+    }, success ? 900 : 400);
+  }
+
+  function showSuccess() {
+    clearFeedback();
+    if (wrap) wrap.classList.add('cf-success');
+    if (successEl) {
+      successEl.hidden = false;
+      requestAnimationFrame(() => successEl.classList.add('is-visible'));
+    }
+    if (btn) {
+      btn.style.display = 'none';
+      btn.classList.remove('is-scanning');
+    }
+  }
+
+  function showError() {
+    clearFeedback();
+    if (wrap) wrap.classList.add('cf-error');
+    if (errorEl) {
+      errorEl.hidden = false;
+      requestAnimationFrame(() => errorEl.classList.add('is-visible'));
+    }
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove('is-scanning');
+      btn.style.display = '';
+      const txt = btn.querySelector('.pfs-text');
+      if (txt) txt.textContent = 'RETRY TRANSMISSION';
+    }
+  }
+
+  function resetForm() {
+    form.reset();
+    clearFieldErrors();
+    if (btn) {
+      btn.disabled = false;
+      btn.style.display = '';
+      btn.classList.remove('is-scanning');
+      const txt = btn.querySelector('.pfs-text');
+      if (txt) txt.textContent = 'TRANSMIT MESSAGE';
+    }
+    setTimeout(() => {
+      if (successEl) successEl.classList.remove('is-visible');
+      if (wrap) wrap.classList.remove('cf-success');
+      setTimeout(() => { if (successEl) successEl.hidden = true; }, 400);
+    }, 5000);
+  }
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    clearFeedback();
+
+    if ($('#cf-honey')?.value) return;
+
+    const data = validatePayload();
+    if (!data) {
+      if (wrap) {
+        wrap.classList.add('cf-error');
+        setTimeout(() => wrap.classList.remove('cf-error'), 600);
+      }
+      return;
+    }
+
+    startTransmissionHUD();
+
+    try {
+      await transmitMessage(data);
+      stopTransmissionHUD(true);
+      await new Promise(r => setTimeout(r, 700));
+      showSuccess();
+      resetForm();
+    } catch (err) {
+      console.error('[Contact] Transmission failed:', err);
+      stopTransmissionHUD(false);
+      await new Promise(r => setTimeout(r, 350));
+      showError();
+    }
   });
 
-  // Magnetic hover on submit btn
+  Object.values(fields).forEach(f => {
+    f.el?.addEventListener('input', () => {
+      const key = Object.keys(fields).find(k => fields[k].el === f.el);
+      if (key) setFieldError(key, '');
+      if (errorEl && !errorEl.hidden) {
+        errorEl.classList.remove('is-visible');
+        setTimeout(() => { errorEl.hidden = true; if (wrap) wrap.classList.remove('cf-error'); }, 300);
+      }
+    });
+  });
+
   if (btn) {
     btn.addEventListener('mousemove', e => {
-      const rect  = btn.getBoundingClientRect();
-      const dx    = e.clientX - rect.left - rect.width  / 2;
-      const dy    = e.clientY - rect.top  - rect.height / 2;
+      if (btn.disabled) return;
+      const rect = btn.getBoundingClientRect();
+      const dx = e.clientX - rect.left - rect.width / 2;
+      const dy = e.clientY - rect.top - rect.height / 2;
       btn.style.transform = `translate(${dx * 0.12}px, ${dy * 0.12}px)`;
     });
     btn.addEventListener('mouseleave', () => {
